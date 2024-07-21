@@ -11,3 +11,10 @@
 /Domain/obj
 /Infrastructure/obj
 /BlazorApp04/BlazorApp04.csproj.user
+/Application.Tests/bin/Debug/net8.0
+/Domain/bin/Debug/net8.0
+/Infrastructure/bin/Debug/net8.0/Infrastructure.deps.json
+/Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+/Infrastructure/bin/Debug/net8.0/Infrastructure.pdb
+/Infrastructure.Tests/bin/Debug/net8.0
+/Infrastructure.Tests/obj

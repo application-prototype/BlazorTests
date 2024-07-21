@@ -1,5 +1,4 @@
 ﻿using Infrastructure.Database.Entities;
-using Infrastructure.Database.Repositories;
 
 namespace Infrastructure.Database
 {
