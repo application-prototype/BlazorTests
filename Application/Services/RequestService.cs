@@ -1,4 +1,7 @@
-﻿using Microsoft.Identity.Abstractions;
+﻿using Infrastructure.Database;
+using Infrastructure.Database.Entities;
+using Infrastructure.Database.Repositories;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 
 namespace Application.Services
@@ -7,53 +10,48 @@ namespace Application.Services
     public interface IRequestService
     {
         Task<string> GetWorkItemAsync();
+        public Task GenerateNewRequest();
+        public Task<RequestEntity> GetRequestById(Guid requestId);
     }
 
     // implementation
     public class RequestService : IRequestService
     {
         private IDownstreamApi _downstreamWebApi;
-        public RequestService(IDownstreamApi downstreamApi)
+        private IRequestDbContext _requestDbContext;
+        public RequestService(IDownstreamApi downstreamApi, IRequestDbContext dbContext)
         {
             _downstreamWebApi = downstreamApi;
+            _requestDbContext = dbContext;
         }
 
         public async Task<string> GetWorkItemAsync()
         {
             var url = "api/WorkItems/request";
 
-            var test = await _downstreamWebApi.GetForUserAsync<string>("TemplateApi", options => options.RelativePath = url);
+            //var test = await _downstreamWebApi.GetForUserAsync<string>("TemplateApi", options => options.RelativePath = url);
 
-            return test ?? string.Empty;
+            return string.Empty;
         }
 
-        ////private readonly HttpClient _httpClient;
-        //private readonly IHttpClientFactory _httpClientFactory;
-        ////public RequestService(HttpClient httpClient, IHttpClientFactory httpClientFactory) 
-        //public RequestService(IHttpClientFactory httpClientFactory)
-        //{
-        //    //_httpClient = httpClient ?? throw new ArgumentNullException();
-        //    _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-        //}
+        public async Task GenerateNewRequest()
+        {
+            var newRequest = new RequestEntity()
+            {
+                Id = Guid.NewGuid(),
+                CreatedById = Guid.NewGuid(),
+                DateCreatedUtcDte = DateTime.UtcNow,
+                UpdatedById = Guid.NewGuid(),
+                DateUpdatedUtcDte = DateTime.UtcNow
 
-        //public async Task<string> GetWorkItemAsync()
-        //{
-        //    using var httpClient = _httpClientFactory.CreateClient("api");
-        //    //var test = await httpClient.GetFromJsonAsync<string>("api/workitem/request");
-        //    var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7046/api/workitem/request");
-        //    //var client = ClientFactory.CreateClient();
-        //    var response = await httpClient.SendAsync(request); //should return hi
-        //    var baseAddress = httpClient.BaseAddress;
-        //    var testing = await httpClient.GetAsync("api/workitem/request");
-        //    string test = "";
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        test = await response.Content.ReadAsStringAsync();
-        //        //using var responseStream = await response.Content.ReadAsStreamAsync();
-        //        //test = await JsonSerializer.DeserializeAsync<string>(responseStream);
-        //    }
-        //    //var test = httpClient.BaseAddress;
-        //    return "hello";
-        //}
+            };
+            await _requestDbContext.Add<RequestEntity>(newRequest);
+        }
+
+        public async Task<RequestEntity> GetRequestById(Guid requestId)
+        {
+            var result = await _requestDbContext.GetRequestById(requestId);
+            return result;
+        }
     }
 }

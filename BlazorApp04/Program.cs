@@ -4,7 +4,8 @@ using Microsoft.Extensions.Configuration;
 using System.Configuration;
 using Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using Infrastructure.Database;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IRequestDbContext, RequestDbContext>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration, "AzureAd")
