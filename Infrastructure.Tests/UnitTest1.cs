@@ -1,22 +1,32 @@
-using Application.Services;
+using NSubstitute;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using System.Threading.Tasks;
 using Infrastructure.Database;
 using Infrastructure.Database.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Data.Entity.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
-using NSubstitute;
-using static System.Reflection.Metadata.BlobBuilder;
+using Application.Services;
 
 namespace Infrastructure.Tests
 {
-    public class UnitTest1
+    public class InfrastructureTests
     {
+        private TestHelper _helper;
+        public InfrastructureTests()
+        {
+            _helper = new TestHelper();
+
+        }
+
         [Fact]
         public async Task GetRequestById()
         {
             // arrange
-            var mockDbContext = Substitute.For<IAppDbContext>();
-
-            
+            var mockDbContext = _helper._dbContext;
 
             var request = new RequestEntity
             {
@@ -27,14 +37,9 @@ namespace Infrastructure.Tests
                 UpdatedDateUTC = DateTime.UtcNow
             };
 
-            
-            var requests = new List<RequestEntity> { request };
-
-
-            //var mockDbSet = Substitute.For<DbSet<RequestEntity>, IQueryable<RequestEntity>>();
-
-
-            mockDbContext.Requests.Returns(requests.AsQueryable<RequestEntity>());
+           
+            await mockDbContext.Requests.AddAsync(request);
+            await mockDbContext.SaveChangesAsync();
 
             var mockDownstream = Substitute.For<IDownstreamApi>();
             var service = new RequestService(mockDownstream, mockDbContext);
