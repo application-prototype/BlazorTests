@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Database;
 using Infrastructure.Database.Entities;
+using Infrastructure.Database.Models;
 using Infrastructure.Database.Repositories;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
@@ -19,10 +20,12 @@ namespace Application.Services
     {
         private IDownstreamApi _downstreamWebApi;
         private IRequestDbContext _requestDbContext;
-        public RequestService(IDownstreamApi downstreamApi, IRequestDbContext dbContext)
+        private ISubRequestDbContext _subRequestDbContext;
+        public RequestService(IDownstreamApi downstreamApi, IRequestDbContext dbContext, ISubRequestDbContext subRequestDbContext)
         {
             _downstreamWebApi = downstreamApi;
             _requestDbContext = dbContext;
+            _subRequestDbContext = subRequestDbContext;
         }
 
         public async Task<string> GetWorkItemAsync()
@@ -42,10 +45,22 @@ namespace Application.Services
                 CreatedById = Guid.NewGuid(),
                 DateCreatedUtcDte = DateTime.UtcNow,
                 UpdatedById = Guid.NewGuid(),
-                DateUpdatedUtcDte = DateTime.UtcNow
-
+                DateUpdatedUtcDte = DateTime.UtcNow,
+                
             };
             await _requestDbContext.Add<RequestEntity>(newRequest);
+
+            var sub = new SubRequestEntity()
+            {
+                Id = Guid.NewGuid(),
+                CreatedById = Guid.NewGuid(),
+                DateCreatedUtcDte = DateTime.UtcNow,
+                UpdatedById = Guid.NewGuid(),
+                DateUpdatedUtcDte = DateTime.UtcNow,
+                RequestId = newRequest.Id,
+                //Request = newRequest
+            };
+            await _subRequestDbContext.Add<SubRequestEntity>(sub);
         }
 
         public async Task<RequestEntity> GetRequestById(Guid requestId)

@@ -15,6 +15,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IRequestDbContext, RequestDbContext>();
+builder.Services.AddScoped<ISubRequestDbContext, SubRequestDbContext>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration, "AzureAd")
