@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Database.Contracts
+namespace Infrastructure.Database.Models.Audit
 {
     public abstract class Entity<T> : IEntity<T>
     {

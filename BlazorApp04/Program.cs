@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using System.Configuration;
 using Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +20,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi()
     .AddDownstreamApi("TemplateApi", builder.Configuration.GetSection("DownstreamAPI"))
-    .AddInMemoryTokenCaches(); 
+    .AddInMemoryTokenCaches();
+
+builder.Services.AddDbContext<IAppDbContext, AppDbContext>(options =>
+        options.UseNpgsql("Server=pandpostgresql.postgres.database.azure.com;Database=pandurx;Port=5432;User Id=dbadmin;Password=P@ssw0rd;Ssl Mode=VerifyFull;"));
 
 var app = builder.Build();
 

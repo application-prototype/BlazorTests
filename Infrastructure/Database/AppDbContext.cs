@@ -1,9 +1,10 @@
-﻿using Infrastructure.Database.Contracts;
-using Infrastructure.Database.Entities;
+﻿using Infrastructure.Database.Models;
+using Infrastructure.Database.Models.Audit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Infrastructure.Database
 {
@@ -12,28 +13,37 @@ namespace Infrastructure.Database
         private readonly ILogger _logger;
         //private readonly IUserAccessor _currentUser;
 
-        public AppDbContext(DbContextOptions options)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
             //_logger = logger;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        // represents the tables that entities represent
+        public DbSet<RequestEntity> Requests { get; set; } = null!;
+        public DbSet<SubRequestEntity> Subs { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //base.OnConfiguring(optionsBuilder);
-            //optionsBuilder.UseNpgsql("Server=pandpostgresql.postgres.database.azure.com;Database=pandurx;Port=5432;User Id=dbadmin;Password=P@ssw0rd;Ssl Mode=VerifyFull;");
+            // reference: https://learn.microsoft.com/en-us/ef/core/modeling/relationships/one-to-one
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.Entity<RequestEntity>()
+                .Property(x => x.Id)
+                .IsRequired(); // Id is required
+
+            modelBuilder.Entity<RequestEntity>()
+                .HasOne(x => x.SubRequest) // define 1:1 relationship
+                .WithOne(x => x.Request)
+                .HasForeignKey<SubRequestEntity>(x => x.RequestId)
+                .IsRequired();
+
+            modelBuilder.Entity<SubRequestEntity>()
+                .Property(x => x.Id)
+                .IsRequired(); // Id is required
         }
 
-        public DbSet<RequestEntity> Request { get; set; } = null!;
 
-
-        public override int SaveChanges()
-        {
-            return base.SaveChanges();
-        }
-
-
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
         {
             ProcessAuditFields();
             return base.SaveChangesAsync(cancellationToken);
@@ -106,9 +116,5 @@ namespace Infrastructure.Database
             trackedEntry.State = EntityState.Modified;
         }
 
-        Task IAppDbContext.SaveChangesAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Database.Contracts
+namespace Infrastructure.Database.Models.Audit
 {
     public interface ICreatableEntity
     {

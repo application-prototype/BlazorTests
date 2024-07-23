@@ -9,7 +9,10 @@ namespace BlazorApp04.Components.Pages
         protected IRequestService _service { get; set; }
         private string _testString { get; set; }
 
-        protected async override void OnInitialized() => _testString = await _service.GetWorkItemAsync();
+        protected async override Task OnInitializedAsync()
+        {
+            var test = await _service.GetWorkItemAsync();
+        }
 
     }
 }

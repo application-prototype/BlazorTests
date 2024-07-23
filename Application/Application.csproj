@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Identity.Web" Version="2.20.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
